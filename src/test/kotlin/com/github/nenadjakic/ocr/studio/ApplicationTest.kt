@@ -1,12 +1,12 @@
 package com.github.nenadjakic.ocr.studio
 
 import org.junit.jupiter.api.Test
+import org.springframework.boot.test.context.SpringBootTest
 
-import org.junit.jupiter.api.Assertions.*
-
-class ApplicationKtTest {
+@SpringBootTest
+class ApplicationTest {
 
     @Test
-    fun main() {
+    fun contextLoads() {
     }
 }
