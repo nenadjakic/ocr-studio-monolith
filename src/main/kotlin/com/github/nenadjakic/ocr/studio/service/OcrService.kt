@@ -1,14 +1,17 @@
 package com.github.nenadjakic.ocr.studio.service
 
 import com.github.nenadjakic.ocr.studio.config.OcrProperties
+import com.github.nenadjakic.ocr.studio.entity.OcrProgress
 import com.github.nenadjakic.ocr.studio.entity.Status
 import com.github.nenadjakic.ocr.studio.exception.OcrException
 import com.github.nenadjakic.ocr.studio.executor.OcrExecutor
 import com.github.nenadjakic.ocr.studio.executor.ParallelizationManager
+import com.github.nenadjakic.ocr.studio.extension.toOcrProgress
 import com.github.nenadjakic.ocr.studio.repository.TaskRepository
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.util.*
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 class OcrService(
@@ -39,9 +42,42 @@ class OcrService(
         )
 
         parallelizationManager.schedule(executor)
+        task.ocrProgress.status = Status.TRIGGERED
+        taskRepository.save(task)
     }
 
-    fun interrupt(id: UUID) = parallelizationManager.interrupt(id)
+    fun interrupt(id: UUID) {
+        val interrupted = parallelizationManager.interrupt(id)
 
-    fun interruptAll(id: UUID) = parallelizationManager.interruptAll()
+        if (interrupted != null) {
+            taskRepository.findById(id).getOrNull()?.let {
+                it.ocrProgress.status = Status.INTERRUPTED
+                taskRepository.save(it)
+            }
+        }
+    }
+
+    fun interruptAll(id: UUID) {
+        val interruptResult = parallelizationManager.interruptAll()
+        for (interruptyResultEntry in interruptResult.entries) {
+            if (interruptyResultEntry.value != null) {
+                taskRepository.findById(id).getOrNull()?.let {
+                    it.ocrProgress.status = Status.INTERRUPTED
+                    taskRepository.save(it)
+                }
+            }
+        }
+    }
+
+    fun getProgress(id: UUID): OcrProgress {
+        val progressInfo = parallelizationManager.getProgress(id)
+
+        if (progressInfo == null) {
+            // get progress from datastore
+            val task = taskRepository.findById(id).orElseThrow { OcrException("Cannot find task with id: $id") }
+            return task.ocrProgress
+        } else {
+            return progressInfo.toOcrProgress()
+        }
+    }
 }
