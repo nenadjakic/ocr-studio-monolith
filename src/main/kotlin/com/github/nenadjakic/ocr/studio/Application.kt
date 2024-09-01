@@ -8,6 +8,7 @@ import org.springframework.boot.task.SimpleAsyncTaskSchedulerBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.data.mongodb.config.EnableMongoAuditing
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories
+import org.springframework.data.web.config.EnableSpringDataWebSupport
 import org.springframework.scheduling.TaskScheduler
 import org.springframework.scheduling.annotation.EnableAsync
 import org.springframework.scheduling.annotation.EnableScheduling
@@ -18,6 +19,7 @@ import org.springframework.scheduling.annotation.EnableScheduling
 @EnableMongoAuditing
 @EnableAsync
 @EnableScheduling
+@EnableSpringDataWebSupport(pageSerializationMode = EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO)
 class Application : CommandLineRunner {
 
     @Bean

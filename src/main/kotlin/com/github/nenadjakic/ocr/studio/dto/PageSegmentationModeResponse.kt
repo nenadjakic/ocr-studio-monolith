@@ -1,6 +1,6 @@
 package com.github.nenadjakic.ocr.studio.dto
 
-data class PageSegmentationModeDto(
+data class PageSegmentationModeResponse(
     override val value: String,
     override val description: String
-) : ValueDescriptionDto
+) : ValueDescriptionResponse
