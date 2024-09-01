@@ -32,6 +32,8 @@ dependencies {
     implementation("org.modelmapper:modelmapper:3.2.1")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
     implementation("net.sourceforge.tess4j:tess4j:5.12.0")
+    implementation("org.apache.tika:tika-core:2.9.2")
+    implementation("org.apache.tika:tika-parsers:2.9.2")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
