@@ -5,7 +5,6 @@ import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.Field
 import java.util.*
 
-
 @Document(collection = "ocr_collection")
 class Task : Auditable<UUID>() {
 

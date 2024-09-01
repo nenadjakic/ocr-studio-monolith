@@ -1,7 +1,7 @@
 package com.github.nenadjakic.ocr.studio.controller
 
-import com.github.nenadjakic.ocr.studio.dto.OcrEngineModeDto
-import com.github.nenadjakic.ocr.studio.dto.PageSegmentationModeDto
+import com.github.nenadjakic.ocr.studio.dto.OcrEngineModeResponse
+import com.github.nenadjakic.ocr.studio.dto.PageSegmentationModeResponse
 import com.github.nenadjakic.ocr.studio.entity.OcrConfig
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -27,8 +27,8 @@ class OcrConfigController {
         ]
     )
     @GetMapping("/engine-mode")
-    fun findOcrEngineModes(): ResponseEntity<Collection<OcrEngineModeDto>> =
-        ResponseEntity.ok(OcrConfig.OcrEngineMode.entries.map { OcrEngineModeDto(it.name, it.descritpion) })
+    fun findOcrEngineModes(): ResponseEntity<Collection<OcrEngineModeResponse>> =
+        ResponseEntity.ok(OcrConfig.OcrEngineMode.entries.map { OcrEngineModeResponse(it.name, it.descritpion) })
 
     @Operation(
         operationId = "findPageSegmentationModes",
@@ -40,6 +40,6 @@ class OcrConfigController {
         ]
     )
     @GetMapping("/page-segmentation-mode")
-    fun findOcrPageSegmentationModes(): ResponseEntity<Collection<PageSegmentationModeDto>> =
-        ResponseEntity.ok(OcrConfig.PageSegmentationMode.entries.map { PageSegmentationModeDto(it.name, it.descritpion) })
+    fun findOcrPageSegmentationModes(): ResponseEntity<Collection<PageSegmentationModeResponse>> =
+        ResponseEntity.ok(OcrConfig.PageSegmentationMode.entries.map { PageSegmentationModeResponse(it.name, it.descritpion) })
 }

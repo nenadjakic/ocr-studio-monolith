@@ -3,15 +3,15 @@ package com.github.nenadjakic.ocr.studio.service
 import com.github.nenadjakic.ocr.studio.config.OcrProperties
 import com.github.nenadjakic.ocr.studio.entity.Document
 import com.github.nenadjakic.ocr.studio.entity.OcrConfig
+import com.github.nenadjakic.ocr.studio.entity.SchedulerConfig
 import com.github.nenadjakic.ocr.studio.entity.Task
 import com.github.nenadjakic.ocr.studio.exception.OcrException
 import com.github.nenadjakic.ocr.studio.repository.TaskRepository
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
-import java.nio.file.Files
-import java.nio.file.Path
 import java.util.*
 
 @Service
@@ -19,46 +19,56 @@ class TaskService(
     private val taskRepository: TaskRepository,
     private val taskFileSystemService: TaskFileSystemService,
     private val ocrProperties: OcrProperties
-) : CrudService<Task, UUID> {
+) {
 
-    override fun findById(id: UUID): Task = taskRepository.findById(id).orElse(null)
+    fun findAll(): List<Task> = taskRepository.findAll(Sort.by(Sort.Order.asc("id")))
 
-    override fun findPage(pageNumber: Int, pageSize: Int): Page<Task> = taskRepository.findAll(PageRequest.of(pageNumber, pageSize))
+    fun findById(id: UUID): Task = taskRepository.findById(id).orElse(null)
 
-    override fun insert(entity: Task): Task {
-        TODO("Not yet implemented")
+    fun findPage(pageNumber: Int, pageSize: Int): Page<Task> = taskRepository.findAll(PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Order.asc("id"))))
+
+    private fun insert(entity: Task): Task {
+        entity.id = UUID.randomUUID()
+
+        taskFileSystemService.createTaskDirectories(entity.id!!)
+
+        return taskRepository.insert(entity)
     }
 
-    override fun update(entity: Task): Task {
-        TODO("Not yet implemented")
+    fun insert(entity: Task, files: Collection<MultipartFile> = emptyList()): Task {
+        val createdEntity = insert(entity)
+        if (!files.isEmpty()) {
+            upload(createdEntity.id!!, files)
+        }
+        return createdEntity;
     }
 
-    override fun delete(entity: Task) = taskRepository.delete(entity)
+    fun update(entity: Task): Task = taskRepository.save(entity)
 
-    override fun deleteById(id: UUID) = taskRepository.deleteById(id)
+    fun delete(entity: Task) = taskRepository.delete(entity)
 
-    fun create(task: Task): Task {
-        task.id = UUID.randomUUID()
-        createTaskDirectories(task.id!!)
+    fun deleteById(id: UUID) = taskRepository.deleteById(id)
 
-        return taskRepository.save(task)
-    }
-
-    fun upload(id: UUID, multipartFiles: Collection<MultipartFile>) {
+    fun upload(id: UUID, multipartFiles: Collection<MultipartFile>): List<Document> {
+        val createdDocuments = mutableListOf<Document>()
         val task = taskRepository.findById(id).orElseThrow { OcrException("Cannot find task with id: $id.") }
 
         for (multiPartFile in multipartFiles) {
             val document = Document()
             document.originalFileName = multiPartFile.originalFilename!!
             document.randomizedFileName = UUID.randomUUID().toString()
-            document.type = multiPartFile.contentType
+            document.type = taskFileSystemService.getContentType(multiPartFile)
 
             taskFileSystemService.uploadFile(multiPartFile, id, document.randomizedFileName)
             task.addInDocument(document)
+            createdDocuments.add(document)
         }
 
         taskRepository.save(task)
+        return createdDocuments
     }
+
+    fun removeFiles(id: UUID, originalFileName: String) {}
 
     fun update(id: UUID, properties: Map<Object, Object>) {
         val optTask = taskRepository.findById(id)
@@ -69,18 +79,9 @@ class TaskService(
         }
     }
 
-    fun update(id: UUID, language: String) {
+    fun update(id: UUID, language: String): Int = taskRepository.updateLanguageById(id, language)
 
-    }
+    fun update(id: UUID, ocrConfig: OcrConfig): Int = taskRepository.updateOcrConfigById(id, ocrConfig)
 
-    private fun createTaskDirectories(id: UUID) {
-        val path = Path.of(ocrProperties.taskPath, id.toString())
-        Files.createDirectories(path)
-        Files.createDirectory(path.resolve("input"))
-        Files.createDirectory(path.resolve("output"))
-    }
-
-    fun update(id: UUID, ocrConfig: OcrConfig) {
-        taskRepository.updateOcrConfigById(id, ocrConfig)
-    }
+    fun update(id: UUID, schedulerConfig: SchedulerConfig): Int = taskRepository.updateSchedulerConfigById(id, schedulerConfig)
 }
