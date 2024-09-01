@@ -45,6 +45,10 @@ tasks.withType<KotlinCompile> {
     }
 }
 
+tasks.test {
+    useJUnitPlatform()
+}
+
 kotlin {
     jvmToolchain(21)
 }
