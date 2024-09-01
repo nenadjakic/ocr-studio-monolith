@@ -23,7 +23,7 @@ class TaskService(
 
     fun findAll(): List<Task> = taskRepository.findAll(Sort.by(Sort.Order.asc("id")))
 
-    fun findById(id: UUID): Task = taskRepository.findById(id).orElse(null)
+    fun findById(id: UUID): Task? = taskRepository.findById(id).orElse(null)
 
     fun findPage(pageNumber: Int, pageSize: Int): Page<Task> = taskRepository.findAll(PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Order.asc("id"))))
 

@@ -32,10 +32,14 @@ class ParallelizationManagerImpl(
 
     override fun interrupt(id: UUID): Boolean? = futures[id]?.cancel(true)
 
-    override fun interruptAll() {
-        for (future in futures.values) {
-            future.cancel(true)
+    override fun interruptAll(): Map<UUID, Boolean?> {
+        val resultMap = mutableMapOf<UUID, Boolean?>()
+
+        for (futureEntry in futures.entries) {
+            resultMap.put(futureEntry.key, futureEntry.value.cancel(true))
         }
+
+        return resultMap
     }
 
     override fun getProgress(id: UUID): ProgressInfo? {

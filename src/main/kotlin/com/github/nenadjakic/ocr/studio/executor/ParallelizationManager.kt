@@ -8,7 +8,7 @@ interface ParallelizationManager {
 
     fun interrupt(id: UUID): Boolean?
 
-    fun interruptAll()
+    fun interruptAll(): Map<UUID, Boolean?>
 
     fun getProgress(id: UUID): ProgressInfo?
 }
