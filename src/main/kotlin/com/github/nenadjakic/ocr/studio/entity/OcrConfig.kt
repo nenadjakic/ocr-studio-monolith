@@ -1,5 +1,7 @@
 package com.github.nenadjakic.ocr.studio.entity
 
+import net.sourceforge.tess4j.ITesseract.RenderedFormat
+
 class OcrConfig {
     enum class OcrEngineMode(val tesseractValue: Int, val descritpion: String) {
         LEGACY(0, "Legacy engine only."),
@@ -24,9 +26,27 @@ class OcrConfig {
         MODE_12(12 ,"Sparse text with OSD."),
         MODE_13(13 ,"Raw line. Treat the image as a single text line, bypassing hacks that are Tesseract-specific.")
     }
+    enum class FileFormat {
+        PDF, HOCR, TEXT;
+
+        fun toRenderedFormat(): RenderedFormat = when (this) {
+            PDF -> RenderedFormat.PDF
+            HOCR -> RenderedFormat.HOCR
+            TEXT -> RenderedFormat.TEXT
+        }
+
+        fun getExtension(): String = when (this) {
+            PDF -> "pdf"
+            HOCR -> "hocr"
+            TEXT -> "txt"
+        }
+    }
 
     var language: String = "eng"
     var ocrEngineMode: OcrEngineMode = OcrEngineMode.DEFAULT
     var pageSegmentationMode: PageSegmentationMode = PageSegmentationMode.MODE_3
+    var preProcessing: Boolean = false
+    var fileFormat: FileFormat = FileFormat.TEXT
+    var mergeDocuments: Boolean = false
 
 }

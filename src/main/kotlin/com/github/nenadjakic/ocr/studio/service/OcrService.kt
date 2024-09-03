@@ -26,7 +26,7 @@ class OcrService(
         val task = taskRepository.findById(id).orElseThrow { OcrException("Cannot find task with id: $id") }
 
         if (Status.getInProgressStatuses().contains(task.ocrProgress.status)) {
-            throw OcrException("Task with id: {} is in progress and cannot be scheduled.")
+            throw OcrException("Task with id: $id is in progress and cannot be scheduled.")
         }
         val tesseract = tesseractFactory.create(
             task.ocrConfig.language,

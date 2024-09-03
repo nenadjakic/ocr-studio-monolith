@@ -21,9 +21,9 @@ class ParallelizationManagerImpl(
         }
 
         val future: ScheduledFuture<out Any> = if (executor.startDateTime != null) {
-            taskScheduler.schedule({ executor }, executor.startDateTime!!.toInstant())
+            taskScheduler.schedule({ executor.run() }, executor.startDateTime!!.toInstant())
         } else {
-            taskScheduler.schedule({ executor }, Instant.now().plusSeconds(30L))
+            taskScheduler.schedule({ executor.run() }, Instant.now().plusSeconds(30L))
         }
 
         runnables[executor.id] = executor
