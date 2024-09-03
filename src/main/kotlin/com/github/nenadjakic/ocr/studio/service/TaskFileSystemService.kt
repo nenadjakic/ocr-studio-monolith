@@ -4,6 +4,7 @@ import com.github.nenadjakic.ocr.studio.config.OcrProperties
 import org.apache.tika.config.TikaConfig
 import org.apache.tika.detect.Detector
 import org.apache.tika.metadata.Metadata
+import org.apache.tika.mime.MediaType
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import java.io.ByteArrayInputStream
@@ -22,8 +23,29 @@ class TaskFileSystemService(
 ) {
     private val inputDirectoryName: String = "input"
     private val outputDirectoryName: String = "output"
-    private final val tikaConfig = TikaConfig()
-    private val detector: Detector = tikaConfig.detector
+
+    companion object {
+        private val tikaConfig = TikaConfig()
+        private val detector: Detector = tikaConfig.detector
+
+        fun getContentType(file: File): MediaType = detector.detect(cloneInputStream(file.inputStream()), Metadata())
+
+        fun getContentType(multiPartFile: MultipartFile): String {
+            var contentType = multiPartFile.contentType
+
+            if ("application/octet-stream".equals(contentType, true)) {
+                contentType = detector.detect(cloneInputStream(multiPartFile.inputStream), Metadata()).toString()
+            }
+            return contentType
+        }
+
+        private fun cloneInputStream (inputStream: InputStream): InputStream {
+            val byteArrayOutputStream = ByteArrayOutputStream()
+            inputStream.transferTo(byteArrayOutputStream)
+
+            return ByteArrayInputStream(byteArrayOutputStream.toByteArray())
+        }
+    }
 
     @Throws(IOException::class)
     fun createTaskDirectories(id: UUID) {
@@ -49,15 +71,6 @@ class TaskFileSystemService(
         multiPartFile.transferTo(targetFile.absoluteFile)
     }
 
-    fun getContentType(multiPartFile: MultipartFile): String {
-        var contentType = multiPartFile.contentType
-
-        if ("application/octet-stream".equals(contentType, true)) {
-            contentType = detector.detect(cloneInputStream(multiPartFile.inputStream), Metadata()).toString()
-        }
-        return contentType
-    }
-
     fun cleanUp(id: UUID) {
         deleteDirectoryRecursively(Path.of(ocrProperties.taskPath))
     }
@@ -72,12 +85,5 @@ class TaskFileSystemService(
             .sorted(Comparator.reverseOrder())
             .map(Path::toFile)
             .forEach(File::delete)
-    }
-
-    private fun cloneInputStream (inputStream: InputStream): InputStream {
-        val byteArrayOutputStream = ByteArrayOutputStream()
-        inputStream.transferTo(byteArrayOutputStream)
-
-        return ByteArrayInputStream(byteArrayOutputStream.toByteArray())
     }
 }

@@ -7,6 +7,8 @@ import com.github.nenadjakic.ocr.studio.entity.Task
 import com.github.nenadjakic.ocr.studio.extension.collectionMap
 import com.github.nenadjakic.ocr.studio.service.TaskService
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Encoding
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -71,7 +73,12 @@ open class TaskController(
     @Operation(
         operationId = "createTask",
         summary = "Create task.",
-        description = "Creates a new task based on the provided model."
+        description = "Creates a new task based on the provided model.",
+        requestBody =
+        io.swagger.v3.oas.annotations.parameters.RequestBody(
+            content = [Content(encoding = [Encoding(name = "model", contentType = "application/json")]
+            )]
+        )
     )
     @ApiResponses(
         value = [
@@ -79,15 +86,20 @@ open class TaskController(
             ApiResponse(responseCode = "400", description = "Invalid request data.")
         ]
     )
-    @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun create(@Valid @RequestParam model: TaskAddRequest, files: Collection<MultipartFile>): ResponseEntity<Void> {
+    @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+    fun create(
+        @Valid @RequestPart(name = "model")
+        //@Schema(implementation = TaskAddRequest::class)
+        model: TaskAddRequest,
+        @RequestPart(value = "files", required = false) files: Collection<MultipartFile>?
+    ): ResponseEntity<Void> {
         var task = modelMapper.map(model, Task::class.java)
-        return insert(task)
+        return insert(task, files)
     }
 
     @Operation(
         operationId = "createDraftTask",
-        summary = "Create task.",
+        summary = "Create draft task.",
         description = "Creates a new task based on the provided model."
     )
     @ApiResponses(
@@ -172,8 +184,8 @@ open class TaskController(
         @RequestPart("files") multipartFiles: Collection<MultipartFile>
     ): ResponseEntity<List<UploadDocumentResponse>> = ResponseEntity.ok(modelMapper.collectionMap(taskService.upload(id, multipartFiles), UploadDocumentResponse::class.java))
 
-    private fun insert(task: Task): ResponseEntity<Void> {
-        val createdTask = taskService.insert(task)
+    private fun insert(task: Task, files: Collection<MultipartFile>? = null): ResponseEntity<Void> {
+        val createdTask = taskService.insert(task, files)
 
         val location = ServletUriComponentsBuilder
             .fromCurrentRequest()
