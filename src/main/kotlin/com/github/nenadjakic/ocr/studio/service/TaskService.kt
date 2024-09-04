@@ -35,9 +35,9 @@ class TaskService(
         return taskRepository.insert(entity)
     }
 
-    fun insert(entity: Task, files: Collection<MultipartFile> = emptyList()): Task {
+    fun insert(entity: Task, files: Collection<MultipartFile>? = emptyList()): Task {
         val createdEntity = insert(entity)
-        if (!files.isEmpty()) {
+        if (files != null && !files!!.isEmpty()) {
             upload(createdEntity.id!!, files)
         }
         return createdEntity;
@@ -57,7 +57,7 @@ class TaskService(
             val document = Document()
             document.originalFileName = multiPartFile.originalFilename!!
             document.randomizedFileName = UUID.randomUUID().toString()
-            document.type = taskFileSystemService.getContentType(multiPartFile)
+            document.type = TaskFileSystemService.getContentType(multiPartFile)
 
             taskFileSystemService.uploadFile(multiPartFile, id, document.randomizedFileName)
             task.addInDocument(document)

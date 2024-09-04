@@ -14,7 +14,7 @@ fun ProgressInfo.toOcrProgress(): OcrProgress {
             ProgressInfo.ProgressInfoStatus.CANCELED -> Status.CANCELED
             ProgressInfo.ProgressInfoStatus.INTERRUPTED -> Status.INTERRUPTED
         }
-    val progress = "$this.taskDone.toString() / $this.totalTasks.toString()"
+    val progress = "${this.taskDone} / ${this.totalTasks}"
     val description = this.description
 
     return OcrProgress(status, progress, description)
