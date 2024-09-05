@@ -30,7 +30,7 @@ class TaskFileSystemService(
 
         fun getContentType(file: File): MediaType = detector.detect(cloneInputStream(file.inputStream()), Metadata())
 
-        fun getContentType(multiPartFile: MultipartFile): String {
+        fun getContentType(multiPartFile: MultipartFile): String? {
             var contentType = multiPartFile.contentType
 
             if ("application/octet-stream".equals(contentType, true)) {
