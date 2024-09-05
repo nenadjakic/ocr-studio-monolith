@@ -1,0 +1,39 @@
+services:
+  mongodb:
+    image: mongo:7.0.12-jammy
+    container_name: ocr-studio-mongodb
+    restart: unless-stopped
+    ports:
+      - "${MONGODB_PORT}:27017"
+    networks:
+      - ocr-studio-network
+    volumes:
+      - ocr-studio-mongo-data:/data/db
+  ocr-studio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        TESSERACT_VERSION: ${TESSERACT_VERSION}
+    ports:
+      - "${APP_PORT}:8080"
+    container_name: ocr-studio-app
+    depends_on:
+      - mongodb
+    environment:
+      OCR_TASK-PATH: /opt/data/tasks
+      OCR_TESSERACT_DATA-PATH: ${OCR_TESSERACT_DATA-PATH}
+      SPRING_DATA_MONGODB_URI: mongodb://ocr-studio-mongodb:27017/ocr-studio
+    networks:
+      - ocr-studio-network
+    volumes:
+      - type: volume
+        source: ocr-studio-task-data
+        target: /opt/data/tasks
+networks:
+  ocr-studio-network:
+volumes:
+  ocr-studio-mongo-data:
+    name: ocr-studio-mongo-data
+  ocr-studio-task-data:
+    name: ocr-studio-task-data

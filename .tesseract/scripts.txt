@@ -1,0 +1,6 @@
+Cyrillic
+Fraktur
+Greek
+Latin
+Hebrew
+Arabic

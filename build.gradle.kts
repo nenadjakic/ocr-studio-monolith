@@ -45,6 +45,10 @@ tasks.withType<KotlinCompile> {
     }
 }
 
+tasks.bootJar {
+    archiveFileName.set("${archiveBaseName.get()}.${archiveExtension.get()}")
+}
+
 tasks.test {
     useJUnitPlatform()
 }
