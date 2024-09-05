@@ -12,11 +12,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    services:
-      mongodb:
-        image: mongo:7.0.12-jammy
-        ports:
-          - 2010:27017
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
