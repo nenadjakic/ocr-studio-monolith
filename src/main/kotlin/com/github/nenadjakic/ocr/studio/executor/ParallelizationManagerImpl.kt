@@ -36,7 +36,7 @@ class ParallelizationManagerImpl(
         val resultMap = mutableMapOf<UUID, Boolean?>()
 
         for (futureEntry in futures.entries) {
-            resultMap.put(futureEntry.key, futureEntry.value.cancel(true))
+            resultMap[futureEntry.key] = futureEntry.value.cancel(true)
         }
 
         return resultMap

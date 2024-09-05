@@ -12,7 +12,6 @@ import org.apache.pdfbox.Loader
 import org.apache.pdfbox.pdmodel.PDDocument
 import org.apache.pdfbox.rendering.ImageType
 import org.apache.pdfbox.rendering.PDFRenderer
-import org.apache.tika.metadata.PDF
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException
@@ -20,7 +19,6 @@ import java.nio.file.Path
 import java.time.ZonedDateTime
 import java.util.*
 import javax.imageio.ImageIO
-import kotlin.collections.Map
 
 class OcrExecutor(
     override val id: UUID,
@@ -96,6 +94,9 @@ class OcrExecutor(
                 task.ocrProgress = progressInfo.toOcrProgress()
                 taskRepository.save(task)
             }
+            if (task.ocrConfig.mergeDocuments) {
+
+            }
             progressInfo.progressInfoStatus = ProgressInfo.ProgressInfoStatus.FINISHED
             task.ocrProgress = progressInfo.toOcrProgress()
             taskRepository.save(task)
@@ -125,7 +126,7 @@ class OcrExecutor(
                 if (result) {
                     files[order++] = tempGrayscaleImage
                 }
-            } else if (mediaType.toString().equals("application/pdf")) {
+            } else if (mediaType.toString() == "application/pdf") {
                Loader.loadPDF(inFile).use  {
                     val pdfRenderer = PDFRenderer(it)
                     logger.info("Starting of pdf preprocess. Total pages: ${it.numberOfPages}")

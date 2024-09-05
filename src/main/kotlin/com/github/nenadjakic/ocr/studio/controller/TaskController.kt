@@ -93,7 +93,7 @@ open class TaskController(
         model: TaskAddRequest,
         @RequestPart(value = "files", required = false) files: Collection<MultipartFile>?
     ): ResponseEntity<Void> {
-        var task = modelMapper.map(model, Task::class.java)
+        val task = modelMapper.map(model, Task::class.java)
         return insert(task, files)
     }
 
@@ -110,7 +110,7 @@ open class TaskController(
     )
     @PostMapping(value = ["/draft"], consumes = [MediaType.APPLICATION_JSON_VALUE])
     fun create(@Valid @RequestBody model: TaskDraftRequest): ResponseEntity<Void> {
-        var task = modelMapper.map(model, Task::class.java)
+        val task = modelMapper.map(model, Task::class.java)
         return insert(task)
     }
 

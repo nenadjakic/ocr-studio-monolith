@@ -1,0 +1,8 @@
+hrv
+eng
+deu
+ita
+fra
+lat
+ell
+osd

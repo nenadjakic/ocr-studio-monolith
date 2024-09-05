@@ -37,10 +37,10 @@ class TaskService(
 
     fun insert(entity: Task, files: Collection<MultipartFile>? = emptyList()): Task {
         val createdEntity = insert(entity)
-        if (files != null && !files!!.isEmpty()) {
+        if (files != null && !files.isEmpty()) {
             upload(createdEntity.id!!, files)
         }
-        return createdEntity;
+        return createdEntity
     }
 
     fun update(entity: Task): Task = taskRepository.save(entity)

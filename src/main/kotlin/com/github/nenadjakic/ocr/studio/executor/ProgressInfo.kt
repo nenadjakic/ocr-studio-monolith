@@ -1,7 +1,5 @@
 package com.github.nenadjakic.ocr.studio.executor
 
-import com.github.nenadjakic.ocr.studio.entity.OcrProgress
-
 data class ProgressInfo(
     var taskDone: Int,
     var totalTasks: Int,

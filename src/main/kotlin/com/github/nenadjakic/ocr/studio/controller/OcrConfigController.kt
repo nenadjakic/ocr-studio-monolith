@@ -1,5 +1,6 @@
 package com.github.nenadjakic.ocr.studio.controller
 
+import com.github.nenadjakic.ocr.studio.dto.FileFormatResponse
 import com.github.nenadjakic.ocr.studio.dto.OcrEngineModeResponse
 import com.github.nenadjakic.ocr.studio.dto.PageSegmentationModeResponse
 import com.github.nenadjakic.ocr.studio.entity.OcrConfig
@@ -23,7 +24,7 @@ class OcrConfigController {
         description = "Returns a collection with ocr engine modes.")
     @ApiResponses(
         value = [
-            ApiResponse(responseCode = "200", description = "Successfully retrieved page of tasks.")
+            ApiResponse(responseCode = "200", description = "Successfully retrieved page of ocr engine modes.")
         ]
     )
     @GetMapping("/engine-mode")
@@ -36,10 +37,23 @@ class OcrConfigController {
         description = "Returns a collection with page segmentation modes.")
     @ApiResponses(
         value = [
-            ApiResponse(responseCode = "200", description = "Successfully retrieved page of tasks.")
+            ApiResponse(responseCode = "200", description = "Successfully retrieved page segmentation modes.")
         ]
     )
     @GetMapping("/page-segmentation-mode")
     fun findOcrPageSegmentationModes(): ResponseEntity<Collection<PageSegmentationModeResponse>> =
         ResponseEntity.ok(OcrConfig.PageSegmentationMode.entries.map { PageSegmentationModeResponse(it.name, it.descritpion) })
+
+    @Operation(
+        operationId = "findFileFormats",
+        summary = "Get all file formats.",
+        description = "Returns a collection with file formats.")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Successfully retrieved of file formats.")
+        ]
+    )
+    @GetMapping("/file-format")
+    fun findOcrFileFormats(): ResponseEntity<Collection<FileFormatResponse>> =
+        ResponseEntity.ok(OcrConfig.FileFormat.entries.map { FileFormatResponse(it.name, it.getExtension(), it.toRenderedFormat().name) })
 }
