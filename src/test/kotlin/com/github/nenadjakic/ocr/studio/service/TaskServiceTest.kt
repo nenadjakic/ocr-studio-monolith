@@ -26,15 +26,13 @@ class TaskServiceTest {
     private lateinit var taskService: TaskService
     private lateinit var taskRepository: TaskRepository
     private lateinit var taskFileSystemService: TaskFileSystemService
-    private lateinit var ocrProperties: OcrProperties
 
     @BeforeEach
     fun setUp() {
         taskRepository = mock(TaskRepository::class.java)
         taskFileSystemService = mock(TaskFileSystemService::class.java)
-        ocrProperties = mock(OcrProperties::class.java)
 
-        taskService = TaskService(taskRepository, taskFileSystemService, ocrProperties)
+        taskService = TaskService(taskRepository, taskFileSystemService)
     }
 
     @AfterEach
