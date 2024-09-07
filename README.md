@@ -204,7 +204,6 @@ This application is designed to manage OCR (Optical Character Recognition) tasks
 - **User wants to OCR one image with some english text and as output wants pdf document. User wants to do OCR immediately.**
 - **User wants to OCR multiple images. User wants to do OCR immediately.**
 - **User wants to OCR multipage pdf document, and as output wants pdf document. User wants to start execution at specified time.**
-  
 
 ## License
 This project is licensed under the Apache License - see the LICENSE file for details.

@@ -1,6 +1,5 @@
 package com.github.nenadjakic.ocr.studio.service
 
-import com.github.nenadjakic.ocr.studio.config.OcrProperties
 import com.github.nenadjakic.ocr.studio.entity.Document
 import com.github.nenadjakic.ocr.studio.entity.OcrConfig
 import com.github.nenadjakic.ocr.studio.entity.SchedulerConfig
@@ -17,8 +16,7 @@ import java.util.*
 @Service
 class TaskService(
     private val taskRepository: TaskRepository,
-    private val taskFileSystemService: TaskFileSystemService,
-    private val ocrProperties: OcrProperties
+    private val taskFileSystemService: TaskFileSystemService
 ) {
 
     fun findAll(): List<Task> = taskRepository.findAll(Sort.by(Sort.Order.asc("id")))
@@ -37,7 +35,7 @@ class TaskService(
 
     fun insert(entity: Task, files: Collection<MultipartFile>? = emptyList()): Task {
         val createdEntity = insert(entity)
-        if (files != null && !files.isEmpty()) {
+        if (!files.isNullOrEmpty()) {
             upload(createdEntity.id!!, files)
         }
         return createdEntity
