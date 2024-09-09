@@ -46,9 +46,9 @@ class HocrSaxHandler: DefaultHandler() {
 
     override fun characters(ch: CharArray?, start: Int, length: Int) {
         if (insideElement == InsideElement.BODY) {
-            bodyBuilder.append(ch, start, length)
+            bodyBuilder.appendRange(ch!!, start, start + length)
         } else if (insideElement == InsideElement.HEAD) {
-            headBuilder.append(ch, start, length)
+            headBuilder.appendRange(ch!!, start, start + length)
         }
     }
 

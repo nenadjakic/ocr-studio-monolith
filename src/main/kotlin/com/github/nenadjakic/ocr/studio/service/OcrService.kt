@@ -80,4 +80,17 @@ class OcrService(
             return progressInfo.toOcrProgress()
         }
     }
+
+    fun clearFinished() {
+        TODO()
+    }
+
+    fun clearInterrupted() {
+        TODO()
+    }
+
+    fun clear() {
+        clearInterrupted()
+        clearFinished()
+    }
 }
