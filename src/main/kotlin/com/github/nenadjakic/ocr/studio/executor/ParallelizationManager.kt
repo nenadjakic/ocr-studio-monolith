@@ -11,4 +11,13 @@ interface ParallelizationManager {
     fun interruptAll(): Map<UUID, Boolean?>
 
     fun getProgress(id: UUID): ProgressInfo?
+
+    fun clearFinished()
+
+    fun clearInterrupted()
+
+    fun clear() {
+        clearInterrupted()
+        clearFinished()
+    }
 }

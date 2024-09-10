@@ -46,7 +46,7 @@ class TaskService(
 
     fun delete(task: Task) {
         if (task.ocrProgress.status != Status.CREATED) {
-            throw IllegalStateOcrException(MessageConst.ILLEGAL_STATUS.formatedMessage(task.id!!))
+            throw IllegalStateOcrException(MessageConst.ILLEGAL_STATUS.description)
         }
 
         removeAllFiles(task)
@@ -54,13 +54,13 @@ class TaskService(
     }
 
     fun deleteById(id: UUID) {
-        val task = taskRepository.findById(id).orElseThrow { MissingDocumentOcrException(MessageConst.MISSING_DOCUMENT.formatedMessage(id)) }
+        val task = taskRepository.findById(id).orElseThrow { MissingDocumentOcrException(MessageConst.MISSING_DOCUMENT.description) }
         delete(task)
     }
 
     fun upload(id: UUID, multipartFiles: Collection<MultipartFile>): List<Document> {
         val createdDocuments = mutableListOf<Document>()
-        val task = taskRepository.findById(id).orElseThrow { MissingDocumentOcrException(MessageConst.MISSING_DOCUMENT.formatedMessage(id)) }
+        val task = taskRepository.findById(id).orElseThrow { MissingDocumentOcrException(MessageConst.MISSING_DOCUMENT.description) }
 
         for (multiPartFile in multipartFiles) {
             val document = Document(multiPartFile.originalFilename!!, UUID.randomUUID().toString()).apply {
@@ -77,10 +77,10 @@ class TaskService(
     }
 
     fun removeFile(id: UUID, originalFileName: String) {
-        val task = taskRepository.findById(id).orElseThrow { MissingDocumentOcrException(MessageConst.MISSING_DOCUMENT.formatedMessage(id)) }
+        val task = taskRepository.findById(id).orElseThrow { MissingDocumentOcrException(MessageConst.MISSING_DOCUMENT.description) }
 
         if (task.ocrProgress.status != Status.CREATED) {
-            throw IllegalStateOcrException(MessageConst.ILLEGAL_STATUS.formatedMessage(id))
+            throw IllegalStateOcrException(MessageConst.ILLEGAL_STATUS.description)
         }
 
         task.inDocuments.find { it.originalFileName == originalFileName }?.let {
@@ -92,7 +92,7 @@ class TaskService(
 
     fun removeAllFiles(task: Task) {
         if (task.ocrProgress.status != Status.CREATED) {
-            throw IllegalStateOcrException(MessageConst.ILLEGAL_STATUS.formatedMessage(task.id!!))
+            throw IllegalStateOcrException(MessageConst.ILLEGAL_STATUS.description)
         }
         task.inDocuments.forEach { taskFileSystemService.deleteFile(TaskFileSystemService.getInputFile(ocrProperties.taskPath, task.id!!, it.randomizedFileName).toPath()) }
         task.inDocuments.clear()
@@ -100,7 +100,7 @@ class TaskService(
     }
 
     fun removeAllFiles(id: UUID) {
-        val task = taskRepository.findById(id).orElseThrow { MissingDocumentOcrException(MessageConst.MISSING_DOCUMENT.formatedMessage(id)) }
+        val task = taskRepository.findById(id).orElseThrow { MissingDocumentOcrException(MessageConst.MISSING_DOCUMENT.description) }
 
         removeAllFiles(task)
     }

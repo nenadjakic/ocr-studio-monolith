@@ -6,6 +6,7 @@ class OcrConfig(
     var language: String = "eng",
     var ocrEngineMode: OcrEngineMode = OcrEngineMode.DEFAULT,
     var pageSegmentationMode: PageSegmentationMode = PageSegmentationMode.MODE_3,
+    var tessVariables: Map<String, String>? = null,
     var preProcessing: Boolean = false,
     var fileFormat: FileFormat = FileFormat.TEXT,
     var mergeDocuments: Boolean = false
