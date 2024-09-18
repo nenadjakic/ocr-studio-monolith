@@ -4,6 +4,8 @@ import com.github.nenadjakic.ocr.studio.dto.*
 import com.github.nenadjakic.ocr.studio.entity.OcrConfig
 import com.github.nenadjakic.ocr.studio.entity.SchedulerConfig
 import com.github.nenadjakic.ocr.studio.entity.Task
+import com.github.nenadjakic.ocr.studio.exception.IllegalStateOcrException
+import com.github.nenadjakic.ocr.studio.exception.MissingDocumentOcrException
 import com.github.nenadjakic.ocr.studio.extension.collectionMap
 import com.github.nenadjakic.ocr.studio.service.TaskService
 import io.swagger.v3.oas.annotations.Operation
@@ -88,9 +90,7 @@ open class TaskController(
     )
     @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun create(
-        @Valid @RequestPart(name = "model")
-        //@Schema(implementation = TaskAddRequest::class)
-        model: TaskAddRequest,
+        @Valid @RequestPart(name = "model") model: TaskAddRequest,
         @RequestPart(value = "files", required = false) files: Collection<MultipartFile>?
     ): ResponseEntity<Void> {
         val task = modelMapper.map(model, Task::class.java)
@@ -183,6 +183,45 @@ open class TaskController(
         @PathVariable id: UUID,
         @RequestPart("files") multipartFiles: Collection<MultipartFile>
     ): ResponseEntity<List<UploadDocumentResponse>> = ResponseEntity.ok(modelMapper.collectionMap(taskService.upload(id, multipartFiles), UploadDocumentResponse::class.java))
+
+    @Operation(
+        operationId = "removeFile",
+        summary = "Remove file or all files and document from task.",
+        description = "Remove file or all files (in case that param originalFileName is not give) and document from task."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "204", description = "File removed from file system successfully. Also document task updated successfully."),
+            ApiResponse(responseCode = "400", description = "Invalid request data.")
+        ]
+    )
+    @DeleteMapping("/file/{id}")
+    @Throws(MissingDocumentOcrException::class)
+    fun removeFile(@PathVariable id: UUID, @RequestParam(required = false) originalFileName: String): ResponseEntity<Void> {
+        if (originalFileName.isEmpty()) {
+            taskService.removeAllFiles(id)
+        } else {
+            taskService.removeFile(id, originalFileName)
+        }
+        return ResponseEntity.noContent().build()
+    }
+
+    @Operation(
+        operationId = "deleteTask",
+        summary = "Delete task and remove all files.",
+        description = "Delete task and remove all files."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "204", description = "Task deleted and all files removed from file system successfully."),
+            ApiResponse(responseCode = "400", description = "Invalid request data.")
+        ]
+    )
+    @DeleteMapping("/{id}")
+    @Throws(MissingDocumentOcrException::class, IllegalStateOcrException::class)
+    fun deleteById (@PathVariable id: UUID) {
+        taskService.deleteById(id)
+    }
 
     private fun insert(task: Task, files: Collection<MultipartFile>? = null): ResponseEntity<Void> {
         val createdTask = taskService.insert(task, files)

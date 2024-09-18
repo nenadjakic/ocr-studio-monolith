@@ -2,7 +2,15 @@ package com.github.nenadjakic.ocr.studio.entity
 
 import net.sourceforge.tess4j.ITesseract.RenderedFormat
 
-class OcrConfig {
+class OcrConfig(
+    var language: String = "eng",
+    var ocrEngineMode: OcrEngineMode = OcrEngineMode.DEFAULT,
+    var pageSegmentationMode: PageSegmentationMode = PageSegmentationMode.MODE_3,
+    var tessVariables: Map<String, String>? = null,
+    var preProcessing: Boolean = false,
+    var fileFormat: FileFormat = FileFormat.TEXT,
+    var mergeDocuments: Boolean = false
+) {
     enum class OcrEngineMode(val tesseractValue: Int, val descritpion: String) {
         LEGACY(0, "Legacy engine only."),
         LSTM(1, "Neural nets LSTM engine only."),
@@ -41,12 +49,4 @@ class OcrConfig {
             TEXT -> "txt"
         }
     }
-
-    var language: String = "eng"
-    var ocrEngineMode: OcrEngineMode = OcrEngineMode.DEFAULT
-    var pageSegmentationMode: PageSegmentationMode = PageSegmentationMode.MODE_3
-    var preProcessing: Boolean = false
-    var fileFormat: FileFormat = FileFormat.TEXT
-    var mergeDocuments: Boolean = false
-
 }

@@ -39,6 +39,10 @@ class TaskFileSystemService(
             return contentType
         }
 
+        fun getInputFile(taskPath: String, taskId: UUID, randomizedFileName: String): File = Path.of(taskPath, taskId.toString(), "input", randomizedFileName).toFile()
+
+        fun getOutputFile(taskPath: String, taskId: UUID, randomizedFileName: String): File = Path.of(taskPath, taskId.toString(), "output", randomizedFileName).toFile()
+
         private fun cloneInputStream (inputStream: InputStream): InputStream {
             val byteArrayOutputStream = ByteArrayOutputStream()
             inputStream.transferTo(byteArrayOutputStream)
@@ -71,13 +75,12 @@ class TaskFileSystemService(
         multiPartFile.transferTo(targetFile.absoluteFile)
     }
 
+    fun deleteFile(file: Path) {
+        Files.delete(file)
+    }
     fun cleanUp(id: UUID) {
         deleteDirectoryRecursively(Path.of(ocrProperties.taskPath))
     }
-
-    fun getInputFiles(id:UUID) {}
-
-    fun getOutputFiles(id:UUID) {}
 
     @Throws(IOException::class)
     private fun deleteDirectoryRecursively(path: Path) {

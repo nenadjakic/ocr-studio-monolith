@@ -46,4 +46,34 @@ class ParallelizationManagerImpl(
         val runnable = runnables[id]
         return runnable?.progressInfo
     }
+
+    override fun clearFinished() {
+        val ids = mutableListOf<UUID>()
+
+        futures.entries.removeIf { entry ->
+            if (entry.value.isDone) {
+                ids.add(entry.key)
+                true
+            } else {
+                false
+            }
+        }
+
+        runnables.entries.removeIf { ids.contains(it.key) }
+    }
+
+    override fun clearInterrupted() {
+        val ids = mutableListOf<UUID>()
+
+        futures.entries.removeIf { entry ->
+            if (entry.value.isCancelled) {
+                ids.add(entry.key)
+                true
+            } else {
+                false
+            }
+        }
+
+        runnables.entries.removeIf { ids.contains(it.key) }
+    }
 }

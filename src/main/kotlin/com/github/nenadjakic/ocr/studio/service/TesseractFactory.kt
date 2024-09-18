@@ -14,13 +14,19 @@ class TesseractFactory(
         language: String,
         ocrEngineMode: Int,
         pageSegMode: Int,
-        params: Map<String, String>?
+        variables: Map<String, String>?
     ): ITesseract {
         val tesseract: ITesseract = Tesseract()
         tesseract.setDatapath(ocrProperties.tesseract.dataPath)
         tesseract.setLanguage(language)
         tesseract.setOcrEngineMode(ocrEngineMode)
         tesseract.setPageSegMode(pageSegMode)
+
+        if (variables != null) {
+            for (variable in variables.entries) {
+                tesseract.setVariable(variable.key, variable.value)
+            }
+        }
 
         return tesseract
     }

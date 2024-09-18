@@ -44,12 +44,9 @@ class OcrExecutor(
         try {
             progressInfo.description = "Starting ocr of documents..."
             for (document in task.inDocuments.sortedBy { it.originalFileName }) {
-                val inFile =
-                    Path.of(ocrProperties.taskPath, task.id.toString(), "input", document.randomizedFileName).toFile()
+                val inFile = TaskFileSystemService.getInputFile(ocrProperties.taskPath, task.id!!, document.randomizedFileName)
                 if (inFile.exists()) {
-                    val outFile =
-                        Path.of(ocrProperties.taskPath, task.id.toString(), "output", UUID.randomUUID().toString())
-                            .toFile()
+                    val outFile = TaskFileSystemService.getOutputFile(ocrProperties.taskPath, task.id!!, UUID.randomUUID().toString())
 
                     document.outDocument = OutDocument()
                     document.outDocument!!.outputFileName = outFile.name
@@ -97,9 +94,10 @@ class OcrExecutor(
             }
             if (task.ocrConfig.mergeDocuments) {
                 progressInfo.description = "Starting merging of documents..."
-                val mergedFile =
-                    Path.of(ocrProperties.taskPath, task.id.toString(), "output", "merged_" + UUID.randomUUID() + "." + task.ocrConfig.fileFormat.getExtension())
-                        .toFile()
+                val mergedFileName = "merged_" + UUID.randomUUID() + "." + task.ocrConfig.fileFormat.getExtension()
+                task.inDocuments.mergedDocumentName = mergedFileName
+
+                val mergedFile = TaskFileSystemService.getOutputFile(ocrProperties.taskPath, task.id!!, mergedFileName)
 
                 when (task.ocrConfig.fileFormat) {
                     OcrConfig.FileFormat.TEXT -> {
@@ -144,9 +142,9 @@ class OcrExecutor(
         val saxHandler = HocrSaxHandler()
 
         BufferedWriter(FileWriter(mergedFile)).use { writer ->
-            //writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
-            //writer.newLine()
-           // writer.write("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">")
+            writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
+            writer.newLine()
+            writer.write("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">")
             writer.write("<html>")
             writer.newLine()
             for ((index, document) in task.inDocuments.sortedBy { it.originalFileName }.withIndex()) {
@@ -182,11 +180,6 @@ class OcrExecutor(
             pdDocument.save(mergedFile)
         }
     }
-
-    private data class InputData (
-        val fileFormat: OcrConfig.FileFormat,
-        val file: File
-    )
 
     @Throws(IOException::class)
     private fun preProcessDocument(preProcess: Boolean, inFile: File): Map<Long, File> {

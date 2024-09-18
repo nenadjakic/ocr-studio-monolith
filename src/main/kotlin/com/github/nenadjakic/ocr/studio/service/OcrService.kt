@@ -1,14 +1,17 @@
 package com.github.nenadjakic.ocr.studio.service
 
+import com.github.nenadjakic.ocr.studio.config.MessageConst
 import com.github.nenadjakic.ocr.studio.config.OcrProperties
 import com.github.nenadjakic.ocr.studio.entity.OcrProgress
 import com.github.nenadjakic.ocr.studio.entity.Status
+import com.github.nenadjakic.ocr.studio.exception.MissingDocumentOcrException
 import com.github.nenadjakic.ocr.studio.exception.OcrException
 import com.github.nenadjakic.ocr.studio.executor.OcrExecutor
 import com.github.nenadjakic.ocr.studio.executor.ParallelizationManager
 import com.github.nenadjakic.ocr.studio.extension.toOcrProgress
 import com.github.nenadjakic.ocr.studio.repository.TaskRepository
 import org.slf4j.LoggerFactory
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.util.*
 import kotlin.jvm.optionals.getOrNull
@@ -23,7 +26,7 @@ class OcrService(
     private val logger = LoggerFactory.getLogger(OcrService::class.java)
 
     fun schedule(id: UUID) {
-        val task = taskRepository.findById(id).orElseThrow { OcrException("Cannot find task with id: $id") }
+        val task = taskRepository.findById(id).orElseThrow { MissingDocumentOcrException(MessageConst.MISSING_DOCUMENT.description) }
 
         if (Status.getInProgressStatuses().contains(task.ocrProgress.status)) {
             throw OcrException("Task with id: $id is in progress and cannot be scheduled.")
@@ -59,8 +62,8 @@ class OcrService(
 
     fun interruptAll(id: UUID) {
         val interruptResult = parallelizationManager.interruptAll()
-        for (interruptyResultEntry in interruptResult.entries) {
-            if (interruptyResultEntry.value != null) {
+        for (interruptResultEntry in interruptResult.entries) {
+            if (interruptResultEntry.value != null) {
                 taskRepository.findById(id).getOrNull()?.let {
                     it.ocrProgress.status = Status.INTERRUPTED
                     taskRepository.save(it)
@@ -74,10 +77,23 @@ class OcrService(
 
         if (progressInfo == null) {
             // get progress from datastore
-            val task = taskRepository.findById(id).orElseThrow { OcrException("Cannot find task with id: $id") }
+            val task = taskRepository.findById(id).orElseThrow { MissingDocumentOcrException(MessageConst.MISSING_DOCUMENT.description) }
             return task.ocrProgress
         } else {
             return progressInfo.toOcrProgress()
         }
+    }
+
+    fun clearFinished() {
+        parallelizationManager.clearFinished()
+    }
+
+    fun clearInterrupted() {
+        parallelizationManager.clearInterrupted()
+    }
+
+    @Scheduled(cron = "0 0 23 * * ?")
+    fun clear() {
+        parallelizationManager.clear()
     }
 }
