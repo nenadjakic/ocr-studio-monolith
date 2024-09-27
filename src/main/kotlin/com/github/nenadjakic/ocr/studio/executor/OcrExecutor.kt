@@ -17,14 +17,14 @@ import org.apache.pdfbox.rendering.PDFRenderer
 import org.slf4j.LoggerFactory
 import java.io.*
 import java.nio.file.Path
-import java.time.ZonedDateTime
+import java.time.LocalDateTime
 import java.util.*
 import javax.imageio.ImageIO
 import javax.xml.parsers.SAXParserFactory
 
 class OcrExecutor(
     override val id: UUID,
-    override val startDateTime: ZonedDateTime?,
+    override val startDateTime: LocalDateTime?,
     private val ocrProperties: OcrProperties,
     private val tesseract: ITesseract,
     private val taskRepository: TaskRepository,

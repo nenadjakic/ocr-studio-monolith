@@ -1,7 +1,7 @@
 package com.github.nenadjakic.ocr.studio.entity
 
-import java.time.ZonedDateTime
+import java.time.LocalDateTime
 
 class SchedulerConfig(
-    var startDateTime: ZonedDateTime? = null
+    var startDateTime: LocalDateTime? = null
 )

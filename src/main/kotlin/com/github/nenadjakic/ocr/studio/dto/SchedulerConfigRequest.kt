@@ -1,5 +1,5 @@
 package com.github.nenadjakic.ocr.studio.dto
 
-import java.time.ZonedDateTime
+import java.time.LocalDateTime
 
-data class SchedulerConfigRequest(var startDateTime: ZonedDateTime? = null)
+data class SchedulerConfigRequest(var startDateTime: LocalDateTime? = null)

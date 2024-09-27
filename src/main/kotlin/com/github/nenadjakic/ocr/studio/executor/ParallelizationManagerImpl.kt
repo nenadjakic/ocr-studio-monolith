@@ -4,7 +4,8 @@ import com.github.nenadjakic.ocr.studio.exception.ConfigurationException
 import org.springframework.scheduling.TaskScheduler
 import org.springframework.stereotype.Service
 import java.time.Instant
-import java.time.ZonedDateTime
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.util.*
 import java.util.concurrent.ScheduledFuture
 
@@ -16,12 +17,12 @@ class ParallelizationManagerImpl(
     private val futures: MutableMap<UUID, ScheduledFuture<*>> = mutableMapOf()
 
     override fun schedule(executor: Executor) {
-        if (executor.startDateTime?.isBefore(ZonedDateTime.now()) == true) {
+        if (executor.startDateTime?.isBefore(LocalDateTime.now()) == true) {
             throw ConfigurationException("Start time is wrong. Cannot schedule task.")
         }
 
         val future: ScheduledFuture<out Any> = if (executor.startDateTime != null) {
-            taskScheduler.schedule({ executor.run() }, executor.startDateTime!!.toInstant())
+            taskScheduler.schedule({ executor.run() }, executor.startDateTime!!.toInstant(ZoneOffset.UTC))
         } else {
             taskScheduler.schedule({ executor.run() }, Instant.now().plusSeconds(30L))
         }
